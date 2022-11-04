@@ -1,0 +1,10 @@
+#spring:
+#  mail:
+#    host: smtp.qq.com # 一定要使用合法的SMTP
+#    username: foreveraimer@qq.com # 用户名
+#    password: jraxjxwrqwqefejb # 是临时生成的密码
+#    properties:
+#      mail.smtp.auth: true # 启用SMTP认证
+#      mail.smtp.starttls.enabled: true # 启用SMTP认证
+#      mail.smtp.starttls.required: true # 必须采用加密链接
+#      mail.debug: true # 开启debug模式

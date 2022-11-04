@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeus.recruit.mapper.RctResumeMapper">
+    
+    <resultMap type="RctResume" id="RctResumeResult">
+        <result property="resumeId"    column="resume_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="nickName"    column="nick_name"    />
+        <result property="sex"    column="sex"    />
+        <result property="healthStatus"    column="health_status"    />
+        <result property="jobIntention"    column="job_intention"    />
+        <result property="politicsStatus"    column="politics_status"    />
+        <result property="education"    column="education"    />
+        <result property="birthday"    column="birthday"    />
+        <result property="major"    column="major"    />
+        <result property="presentAddress"    column="present_address"    />
+        <result property="phone"    column="phone"    />
+        <result property="email"    column="email"    />
+        <result property="award"    column="award"    />
+        <result property="selfEvaluation"    column="self_evaluation"    />
+        <result property="resumeFile"    column="resume_file"    />
+    </resultMap>
+
+    <sql id="selectRctResumeVo">
+        select resume_id, user_id, nick_name, sex, health_status, job_intention, politics_status, education, birthday, major, present_address, phone, email, award, self_evaluation, resume_file from rct_resume
+    </sql>
+
+    <select id="selectRctResumeList" parameterType="RctResume" resultMap="RctResumeResult">
+        <include refid="selectRctResumeVo"/>
+        <where>  
+            <if test="nickName != null  and nickName != ''"> and nick_name like concat('%', #{nickName}, '%')</if>
+            <if test="healthStatus != null  and healthStatus != ''"> and health_status = #{healthStatus}</if>
+            <if test="politicsStatus != null  and politicsStatus != ''"> and politics_status = #{politicsStatus}</if>
+            <if test="education != null  and education != ''"> and education like concat('%', #{education}, '%')</if>
+            <if test="major != null  and major != ''"> and major like concat('%', #{major}, '%')</if>
+            <if test="presentAddress != null  and presentAddress != ''"> and present_address like concat('%', #{presentAddress}, '%')</if>
+            <if test="phone != null  and phone != ''"> and phone like concat('%', #{phone}, '%')</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+        </where>
+    </select>
+    
+    <select id="selectRctResumeByResumeId" parameterType="Long" resultMap="RctResumeResult">
+        <include refid="selectRctResumeVo"/>
+        where resume_id = #{resumeId}
+    </select>
+        
+    <insert id="insertRctResume" parameterType="RctResume" useGeneratedKeys="true" keyProperty="resumeId">
+        insert into rct_resume
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="nickName != null">nick_name,</if>
+            <if test="sex != null">sex,</if>
+            <if test="healthStatus != null">health_status,</if>
+            <if test="jobIntention != null">job_intention,</if>
+            <if test="politicsStatus != null">politics_status,</if>
+            <if test="education != null">education,</if>
+            <if test="birthday != null">birthday,</if>
+            <if test="major != null">major,</if>
+            <if test="presentAddress != null">present_address,</if>
+            <if test="phone != null">phone,</if>
+            <if test="email != null">email,</if>
+            <if test="award != null">award,</if>
+            <if test="selfEvaluation != null">self_evaluation,</if>
+            <if test="resumeFile != null">resume_file,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="nickName != null">#{nickName},</if>
+            <if test="sex != null">#{sex},</if>
+            <if test="healthStatus != null">#{healthStatus},</if>
+            <if test="jobIntention != null">#{jobIntention},</if>
+            <if test="politicsStatus != null">#{politicsStatus},</if>
+            <if test="education != null">#{education},</if>
+            <if test="birthday != null">#{birthday},</if>
+            <if test="major != null">#{major},</if>
+            <if test="presentAddress != null">#{presentAddress},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="email != null">#{email},</if>
+            <if test="award != null">#{award},</if>
+            <if test="selfEvaluation != null">#{selfEvaluation},</if>
+            <if test="resumeFile != null">#{resumeFile},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRctResume" parameterType="RctResume">
+        update rct_resume
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="sex != null">sex = #{sex},</if>
+            <if test="healthStatus != null">health_status = #{healthStatus},</if>
+            <if test="jobIntention != null">job_intention = #{jobIntention},</if>
+            <if test="politicsStatus != null">politics_status = #{politicsStatus},</if>
+            <if test="education != null">education = #{education},</if>
+            <if test="birthday != null">birthday = #{birthday},</if>
+            <if test="major != null">major = #{major},</if>
+            <if test="presentAddress != null">present_address = #{presentAddress},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="award != null">award = #{award},</if>
+            <if test="selfEvaluation != null">self_evaluation = #{selfEvaluation},</if>
+            <if test="resumeFile != null">resume_file = #{resumeFile},</if>
+        </trim>
+        where resume_id = #{resumeId}
+    </update>
+
+    <delete id="deleteRctResumeByResumeId" parameterType="Long">
+        delete from rct_resume where resume_id = #{resumeId}
+    </delete>
+
+    <delete id="deleteRctResumeByResumeIds" parameterType="String">
+        delete from rct_resume where resume_id in 
+        <foreach item="resumeId" collection="array" open="(" separator="," close=")">
+            #{resumeId}
+        </foreach>
+    </delete>
+</mapper>

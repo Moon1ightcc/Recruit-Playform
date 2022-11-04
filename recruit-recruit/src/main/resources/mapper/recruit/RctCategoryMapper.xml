@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeus.recruit.mapper.RctCategoryMapper">
+
+    <resultMap type="RctCategory" id="RctCategoryResult">
+        <result property="positionId"    column="position_id"    />
+        <result property="positionName"    column="position_name"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="description"    column="description"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRctCategoryVo">
+        select position_id, position_name,parent_id, description, create_time, update_time from rct_category
+    </sql>
+
+    <select id="selectRctCategoryList" parameterType="RctCategory" resultMap="RctCategoryResult">
+        <include refid="selectRctCategoryVo"/>
+        <where>
+            <if test="positionName != null  and positionName != ''"> and position_name like concat('%', #{positionName}, '%')</if>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where> order by parent_id ASC
+    </select>
+
+
+
+    <select id="selectRctCategoryByPositionId" parameterType="Long" resultMap="RctCategoryResult">
+        <include refid="selectRctCategoryVo"/>
+        where position_id = #{positionId}
+    </select>
+
+    <select id="selectRctCategoryNotParent" resultMap="RctCategoryResult">
+        select position_id, position_name, parent_id ,description, create_time, update_time from rct_category WHERE
+	parent_id != 0
+    </select>
+
+
+    <select id="selectRctParentCategory" resultType="java.lang.String">
+        select position_name from rct_category WHERE position_id = #{parent_id}
+    </select>
+
+
+    <insert id="insertRctCategory" parameterType="RctCategory" useGeneratedKeys="true" keyProperty="positionId">
+        insert into rct_category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="positionName != null and positionName != ''">position_name,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="description != null">description,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="positionName != null and positionName != ''">#{positionName},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateRctCategory" parameterType="RctCategory">
+        update rct_category
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="positionName != null and positionName != ''">position_name = #{positionName},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where position_id = #{positionId}
+    </update>
+
+    <delete id="deleteRctCategoryByPositionId" parameterType="Long">
+        delete from rct_category where position_id = #{positionId}
+    </delete>
+
+    <delete id="deleteRctCategoryByPositionIds" parameterType="String">
+        delete from rct_category where position_id in
+        <foreach item="positionId" collection="array" open="(" separator="," close=")">
+            #{positionId}
+        </foreach>
+    </delete>
+</mapper>

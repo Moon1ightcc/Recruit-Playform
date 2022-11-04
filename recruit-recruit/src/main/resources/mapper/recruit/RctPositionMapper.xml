@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeus.recruit.mapper.RctPositionMapper">
+
+    <resultMap type="RctPosition" id="RctPositionResult">
+        <result property="recruitId"    column="recruit_id"    />
+        <result property="positionName"    column="position_name"    />
+        <result property="requirement"    column="requirement"    />
+        <result property="workCity"    column="work_city"    />
+        <result property="phone"    column="phone"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="deadline"    column="deadline"    />
+        <result property="numbers"    column="numbers"    />
+        <result property="maxSalary"    column="max_salary"    />
+        <result property="minSalary"    column="min_salary"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="companyName"  column="company_Name"   />
+        <association property="category"    column="positionId" javaType="RctCategory" resultMap="RctCategoryResult" />
+        <association property="company"    column="companyId" javaType="RctCompany" resultMap="RctCompanyResult" />
+    </resultMap>
+
+    <resultMap type="RctCompany" id="RctCompanyResult">
+        <result property="companyId"    column="company_id"    />
+        <result property="companyName"    column="company_name"    />
+        <result property="companyAddress"    column="company_address"    />
+        <result property="phonenumber"    column="phonenumber"    />
+        <result property="logo"    column="logo"    />
+        <result property="license"    column="license"    />
+        <result property="status"    column="status"    />
+        <result property="nature"    column="nature"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="remark"    column="remark"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap type="RctCategory" id="RctCategoryResult">
+        <result property="positionId"    column="position_id"    />
+        <result property="positionName"    column="position_name"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="description"    column="description"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRctPositionVo">
+        select recruit_id, position_name, requirement, work_city, phone, start_time, deadline, numbers, max_salary, min_salary, company_id, status, create_time, update_time, category_id from rct_position
+    </sql>
+
+    <sql id="selectFrontPositionVo">
+    SELECT
+        pos.recruit_id,
+        pos.position_name,
+        pos.work_city,
+        pos.max_salary,
+		pos.start_time,
+		pos.status,
+		pos.deadline,
+        pos.min_salary,
+        pos.requirement,
+        pos.company_id,
+        cat.parent_id,
+        com.company_name,
+        cat.position_name,
+		cat.position_id,
+        com.logo
+    FROM
+        rct_position pos
+        LEFT JOIN rct_company com ON com.company_id = pos.company_id
+        LEFT JOIN rct_category cat ON pos.category_id = cat.position_id
+     </sql>
+
+
+    <select id="selectRctPositionList" parameterType="RctPosition" resultMap="RctPositionResult">
+        <include refid="selectRctPositionVo"/>
+        <where>
+            <if test="positionName != null  and positionName != ''"> and position_name like concat('%', #{positionName}, '%')</if>
+            <if test="requirement != null  and requirement != ''"> and requirement = #{requirement}</if>
+            <if test="workCity != null  and workCity != ''"> and work_city like concat('%', #{workCity}, '%')</if>
+            <if test="params.beginDeadline != null and params.beginDeadline != '' and params.endDeadline != null and params.endDeadline != ''"> and deadline between #{params.beginDeadline} and #{params.endDeadline}</if>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectRctPositionByRecruitId" parameterType="Long" resultMap="RctPositionResult">
+        <include refid="selectRctPositionVo"/>
+        where recruit_id = #{recruitId}
+    </select>
+    
+    <select id="selectRctHotPosition" resultMap="RctPositionResult">
+        <include refid="selectFrontPositionVo"/>
+        WHERE pos.status = 1
+        LIMIT 9
+    </select>
+
+
+    <select id="listByPositionName" resultMap="RctPositionResult">
+        <include refid="selectFrontPositionVo"/>
+        <where>
+        <if test="positionName != null  and positionName != ''"> and pos.position_name like concat('%', #{positionName}, '%')</if>
+         and pos.status = 1
+        </where>
+    </select>
+
+    <select id="selectPositionInfoVoByRecruitId" parameterType="Long" resultMap="RctPositionResult">
+        <include refid="selectFrontPositionVo"/>
+        where pos.recruit_id = #{recruitId} And pos.status = 1
+    </select>
+
+    <select id="positionCountList" resultType="java.util.Map">
+        SELECT position_name as positionName,count(position_name) as count FROM rct_position GROUP BY position_name
+    </select>
+
+
+    <select id="listByCompanyName" resultMap="RctPositionResult">
+        <include refid="selectFrontPositionVo"/>
+        <where>
+            <if test="companyName != null  and companyName != ''"> and com.company_name like concat('%', #{companyName}, '%')</if>
+            and pos.status = 1
+        </where>
+    </select>
+
+    <insert id="insertRctPosition" parameterType="RctPosition" useGeneratedKeys="true" keyProperty="recruitId">
+        insert into rct_position
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="positionName != null and positionName != ''">position_name,</if>
+            <if test="requirement != null">requirement,</if>
+            <if test="workCity != null">work_city,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="phone != null">phone,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="deadline != null">deadline,</if>
+            <if test="numbers != null">numbers,</if>
+            <if test="maxSalary != null">max_salary,</if>
+            <if test="minSalary != null">min_salary,</if>
+            <if test="companyId != null">company_id,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="positionName != null and positionName != ''">#{positionName},</if>
+            <if test="requirement != null">#{requirement},</if>
+            <if test="workCity != null">#{workCity},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="deadline != null">#{deadline},</if>
+            <if test="numbers != null">#{numbers},</if>
+            <if test="maxSalary != null">#{maxSalary},</if>
+            <if test="minSalary != null">#{minSalary},</if>
+            <if test="companyId != null">#{companyId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateRctPosition" parameterType="RctPosition">
+        update rct_position
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="positionName != null and positionName != ''">position_name = #{positionName},</if>
+            <if test="requirement != null">requirement = #{requirement},</if>
+            <if test="workCity != null">work_city = #{workCity},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="deadline != null">deadline = #{deadline},</if>
+            <if test="numbers != null">numbers = #{numbers},</if>
+            <if test="maxSalary != null">max_salary = #{maxSalary},</if>
+            <if test="minSalary != null">min_salary = #{minSalary},</if>
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where recruit_id = #{recruitId}
+    </update>
+
+    <delete id="deleteRctPositionByRecruitId" parameterType="Long">
+        delete from rct_position where recruit_id = #{recruitId}
+    </delete>
+
+    <delete id="deleteRctPositionByRecruitIds" parameterType="String">
+        delete from rct_position where recruit_id in
+        <foreach item="recruitId" collection="array" open="(" separator="," close=")">
+            #{recruitId}
+        </foreach>
+    </delete>
+</mapper>

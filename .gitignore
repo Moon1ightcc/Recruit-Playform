@@ -1,0 +1,6 @@
+# Project exclude paths
+/recruit-admin/target/
+/recruit-common/target/
+/recruit-framework/target/
+/recruit-recruit/target/
+/recruit-system/target/
